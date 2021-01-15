@@ -32,7 +32,7 @@ export default {
   },
   methods:{
     //登录请求
-    handleLogin(){
+    /**handleLogin(){
       this.$http.post('login',this.formdata).then(res=>{
         //console.log(res)
         const {
@@ -52,6 +52,30 @@ export default {
           this.$message.error(msg);
         }
       })
+    }**/
+ //优化请求 让异步操作看起来像同步代码
+  //ES7 async+await
+    async handleLogin(){
+      const res=await this.$http.post('login',this.formdata)
+        console.log(res)
+        const {
+          data,meta:{
+            msg,status
+          }
+        } = res.data//对象结果赋值
+        if(status===200){
+          //登录成功
+          //存储token值
+          localStorage.setItem('token',data.token)
+          //跳转home
+          this.$router.push({name:'home'})
+          //返回信息：登录成功
+          this.$message(msg);
+        }else{
+          //登录失败
+          //返回提示信息：登录失败
+          this.$message.error(msg);
+        }
     }
   }
 };
