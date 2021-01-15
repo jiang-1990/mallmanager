@@ -65,8 +65,9 @@ export default {
         } = res.data//对象结果赋值
         if(status===200){
           //登录成功
-          //存储token值
+          //存储token值 (如果用户没登录通过标识直接来到home组件)
           localStorage.setItem('token',data.token)
+
           //跳转home
           this.$router.push({name:'home'})
           //返回信息：登录成功
