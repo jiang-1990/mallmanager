@@ -8,10 +8,41 @@
     </el-breadcrumb>
     <!--搜索-->
     <div style="margin-top: 15px">
-      <el-input @clear="loadUserList()" placeholder="请输用户名" v-model="query" class="inputSearch" clearable>
-        <el-button @click="seachUser()" slot="append" icon="el-icon-search"></el-button>
+      <el-input
+        @clear="loadUserList()"
+        placeholder="请输用户名"
+        v-model="query"
+        class="inputSearch"
+        clearable
+      >
+        <el-button
+          @click="seachUser()"
+          slot="append"
+          icon="el-icon-search"
+        ></el-button>
       </el-input>
-      <el-button type="primary">添加用户</el-button>
+      <el-button type="primary" @click="showAddUserDia()">添加用户</el-button>
+      <el-dialog title="添加用户" :visible.sync="dialogFormVisible">
+        <el-form :model="form">
+          <el-form-item label="用户名：" :label-width="formLabelWidth">
+            <el-input v-model="form.username" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="密 码：" :label-width="formLabelWidth">
+            <el-input v-model="form.password" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="邮 箱：" :label-width="formLabelWidth">
+            <el-input v-model="form.email" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="电 话：" :label-width="formLabelWidth">
+            <el-input v-model="form.mobile" autocomplete="off"></el-input>
+          </el-form-item>
+  
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogFormVisible = false">取 消</el-button>
+          <el-button type="primary" @click="addUser()">确 定</el-button>
+        </div>
+      </el-dialog>
     </div>
     <!--表格-->
     <el-table :data="userlist" style="width: 100%">
@@ -37,9 +68,27 @@
       </el-table-column>
       <el-table-column prop="" label="操作">
         <template slot-scope="scope">
-          <el-button size="small" plain type="primary" icon="el-icon-edit" circle></el-button>
-          <el-button size="small" plain type="success" icon="el-icon-check" circle></el-button> 
-          <el-button size="small" plain type="danger" icon="el-icon-delete" circle></el-button>
+          <el-button
+            size="small"
+            plain
+            type="primary"
+            icon="el-icon-edit"
+            circle
+          ></el-button>
+          <el-button
+            size="small"
+            plain
+            type="success"
+            icon="el-icon-check"
+            circle
+          ></el-button>
+          <el-button
+            size="small"
+            plain
+            type="danger"
+            icon="el-icon-delete"
+            circle
+          ></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -51,7 +100,8 @@
       :page-sizes="[2, 4, 6, 8, 10]"
       :page-size="pagesize"
       layout="total, sizes, prev, pager, next, jumper"
-      :total="total">
+      :total="total"
+    >
     </el-pagination>
   </el-card>
 </template>
@@ -66,12 +116,36 @@ export default {
       //表格绑定的数据
       userlist: [],
       total: -1,
+      dialogFormVisible: false,
+      form: {
+        username: '',
+        password: '',
+        emaill: '',
+        mobile: ''
+      },
+      formLabelWidth: '120px'
     };
   },
   created() {
     this.getUserList();
   },
   methods: {
+    //添加用户
+    showAddUserDia(){
+      this.dialogFormVisible=true
+    },
+    //添加用户提交报保存方法
+    async addUser(){
+      const res = await this.$http.post(`users`,this.form)
+      const {data,meta:{msg,status}}=res.data
+      if(status===201){//添加成功
+        this.dialogFormVisible=false//关闭对话框
+        this.getUserList()//更新视图
+        this.form={}//清空数据
+        this.$message.success(msg);//提示信息
+      }
+      console.log(res)
+    },
     //获取用户列表数据的方法
     async getUserList() {
       //query    | 查询参数     | 可以为空
@@ -99,29 +173,30 @@ export default {
         //提示
         this.$message.warning(msg);
       }
-      console.log(this.userlist);
+      //console.log(this.userlist);
     },
     //分页相关方法
-    handleSizeChange(val) {//每页显示条数变化时触发
+    handleSizeChange(val) {
+      //每页显示条数变化时触发
       //console.log(`每页 ${val} 条`);
-      this.pagesize=val
+      this.pagesize = val;
       //this.pagesize=1
-      this.getUserList()
+      this.getUserList();
     },
-    handleCurrentChange(val) {//当前页改变触发
+    handleCurrentChange(val) {
+      //当前页改变触发
       //console.log(`当前页: ${val}`);
-      this.pagenum=val
-      this.getUserList()
+      this.pagenum = val;
+      this.getUserList();
     },
     //搜索用户方法
-    seachUser(){
-      this.getUserList()
+    seachUser() {
+      this.getUserList();
     },
     //点击搜索框的X重新加载数据的方法
-    loadUserList(){
-      this.getUserList()
-    }
-
+    loadUserList() {
+      this.getUserList();
+    },
   },
 };
 </script>
