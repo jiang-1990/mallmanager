@@ -136,6 +136,7 @@ export default {
 }
 .main {
   background-color: #e9eef3;
+  padding: 10px;
 }
 /**头部样式 */
 .middle {
