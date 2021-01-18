@@ -8,8 +8,8 @@
     </el-breadcrumb>
     <!--搜索-->
     <div style="margin-top: 15px">
-      <el-input placeholder="请输入内容" v-model="query" class="inputSearch">
-        <el-button slot="append" icon="el-icon-search"></el-button>
+      <el-input @clear="loadUserList()" placeholder="请输用户名" v-model="query" class="inputSearch" clearable>
+        <el-button @click="seachUser()" slot="append" icon="el-icon-search"></el-button>
       </el-input>
       <el-button type="primary">添加用户</el-button>
     </div>
@@ -103,16 +103,25 @@ export default {
     },
     //分页相关方法
     handleSizeChange(val) {//每页显示条数变化时触发
-        //console.log(`每页 ${val} 条`);
-        this.pagesize=val
-        //this.pagesize=1
-        this.getUserList()
-      },
-      handleCurrentChange(val) {//当前页改变触发
-       //console.log(`当前页: ${val}`);
-        this.pagenum=val
-        this.getUserList()
-      }
+      //console.log(`每页 ${val} 条`);
+      this.pagesize=val
+      //this.pagesize=1
+      this.getUserList()
+    },
+    handleCurrentChange(val) {//当前页改变触发
+      //console.log(`当前页: ${val}`);
+      this.pagenum=val
+      this.getUserList()
+    },
+    //搜索用户方法
+    seachUser(){
+      this.getUserList()
+    },
+    //点击搜索框的X重新加载数据的方法
+    loadUserList(){
+      this.getUserList()
+    }
+
   },
 };
 </script>
