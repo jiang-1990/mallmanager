@@ -44,6 +44,15 @@
       </el-table-column>
     </el-table>
     <!--翻页-->
+    <el-pagination
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="pagenum"
+      :page-sizes="[2, 4, 6, 8, 10]"
+      :page-size="pagesize"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="total">
+    </el-pagination>
   </el-card>
 </template>
 
@@ -53,7 +62,7 @@ export default {
     return {
       query: "",
       pagenum: 1,
-      pagesize: 12,
+      pagesize: 2,
       //表格绑定的数据
       userlist: [],
       total: -1,
@@ -92,6 +101,18 @@ export default {
       }
       console.log(this.userlist);
     },
+    //分页相关方法
+    handleSizeChange(val) {//每页显示条数变化时触发
+        //console.log(`每页 ${val} 条`);
+        this.pagesize=val
+        //this.pagesize=1
+        this.getUserList()
+      },
+      handleCurrentChange(val) {//当前页改变触发
+       //console.log(`当前页: ${val}`);
+        this.pagenum=val
+        this.getUserList()
+      }
   },
 };
 </script>
