@@ -66,15 +66,33 @@
           </el-switch>
         </template>
       </el-table-column>
-      <el-table-column prop="" label="操作">
+      <el-table-column label="操作">
         <template slot-scope="scope">
           <el-button
+            @click="showUserEditDia(scope.row)"
             size="small"
             plain
             type="primary"
             icon="el-icon-edit"
             circle
           ></el-button>
+          <el-dialog title="编辑用户信息" :visible.sync="dialogFormVisibleEid">
+            <el-form :model="form">
+              <el-form-item label="用户名：" :label-width="formLabelWidth">
+                <el-input v-model="form.username" autocomplete="off" :disabled="true"></el-input>
+              </el-form-item>
+              <el-form-item label="邮 箱：" :label-width="formLabelWidth">
+                <el-input v-model="form.email" autocomplete="off"></el-input>
+              </el-form-item>
+              <el-form-item label="电 话：" :label-width="formLabelWidth">
+                <el-input v-model="form.mobile" autocomplete="off"></el-input>
+              </el-form-item>
+              </el-form>
+              <div slot="footer" class="dialog-footer">
+                <el-button @click="dialogFormVisibleEid = false">取 消</el-button>
+                <el-button type="primary" @click="editUser()">确 定</el-button>
+              </div>
+            </el-dialog>
           <el-button
             size="small"
             plain
@@ -83,6 +101,7 @@
             circle
           ></el-button>
           <el-button
+            @click="showUserDeleMsgBox(scope.row.id)"
             size="small"
             plain
             type="danger"
@@ -104,6 +123,7 @@
     >
     </el-pagination>
   </el-card>
+  
 </template>
 
 <script>
@@ -112,11 +132,12 @@ export default {
     return {
       query: "",
       pagenum: 1,
-      pagesize: 2,
+      pagesize: 10,
       //表格绑定的数据
       userlist: [],
       total: -1,
       dialogFormVisible: false,
+      dialogFormVisibleEid: false,
       form: {
         username: '',
         password: '',
@@ -130,8 +151,49 @@ export default {
     this.getUserList();
   },
   methods: {
+    //编辑用户发送请求
+    async editUser(){
+      //console.log(this.form)
+      const res = await this.$http.put(`users/${this.form.id}`,this.form)
+      const {data,meta:{msg,status}} = res.data
+      if(status===200){
+        this.$message.success(msg)
+        this.dialogFormVisibleEid = false
+      }
+    },
+    //编辑用户
+    showUserEditDia(user){
+      this.form=user
+      this.dialogFormVisibleEid=true
+    },
+    //删除用户
+    showUserDeleMsgBox(userId){
+      this.$confirm('删除用户？, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then( async () => {
+          const res = await this.$http.delete(`users/${userId}`)
+          const {data,meta:{msg,status}} = res.data
+          if(status===200){
+            this.getUserList()
+            this.$message({
+              type: 'success',
+              message: msg
+            })
+          }else{
+            this.$message.warning(msg)
+          }  
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });          
+        });
+    },
     //添加用户
     showAddUserDia(){
+      this.form = {} 
       this.dialogFormVisible=true
     },
     //添加用户提交报保存方法
@@ -173,7 +235,7 @@ export default {
         //提示
         this.$message.warning(msg);
       }
-      //console.log(this.userlist);
+      console.log(this.userlist);
     },
     //分页相关方法
     handleSizeChange(val) {
