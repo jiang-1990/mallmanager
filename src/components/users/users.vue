@@ -108,7 +108,7 @@
           <el-dialog title="角色分配" :visible.sync="dialogFormVisibleRole">
             <el-form :model="form">
               <el-form-item label="用户名" :label-width="formLabelWidth">
-                {{currRoleId}}
+                {{currusername}}
               </el-form-item>
               <el-form-item label="角色" :label-width="formLabelWidth">
                 <el-select v-model="currRoleId">
@@ -119,9 +119,7 @@
             </el-form>
             <div slot="footer" class="dialog-footer">
               <el-button @click="dialogFormVisibleRole = false">取 消</el-button>
-              <el-button type="primary" @click="dialogFormVisibleRole = false"
-                >确 定</el-button
-              >
+              <el-button type="primary" @click="setRole()">确 定</el-button>
             </div>
           </el-dialog>
           <el-button
@@ -170,6 +168,7 @@ export default {
       },
       //角色分配
       currRoleId: -1,
+      currUserId:-1,
       formLabelWidth: "100px",
       currusername:'',
       roles: []
@@ -179,20 +178,31 @@ export default {
     this.getUserList();
   },
   methods: {
+    //发起修改角色请求修改数据
+    async setRole(){
+      const res = await this.$http.put(`users/${this.currUserId}/role`,{rid:this.currRoleId})
+      const {data,meta:{msg,status}} = res.data
+      if(status===200){
+        this.$message.success(msg)
+         this.dialogFormVisibleRole = false
+      }
+      //console.log(res)
+    },
     //用户角色修改
     async showSetUserRoleDia(user){
       this.currusername=user.username
+      this.currUserId=user.id
       //获取所有的角色
       const resr = await this.$http.get('roles')
       this.roles = resr.data.data
-      console.log(this.roles)
+      //console.log(this.roles)
       //获取该用户的角色id
       const res = await this.$http.get(`users/${user.id}`)
       const {data:{rid},meta:{msg,status}} = res.data
       if(status===200){
         this.currRoleId=rid
       }
-      console.log(res)
+      //console.log(res)
       this.dialogFormVisibleRole=true
     
     },
