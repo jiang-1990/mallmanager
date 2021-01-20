@@ -7,6 +7,9 @@ import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import '@/assets/css/reset.css'
 import moment from 'moment'
+//myBread其实是组件选项所在的对象{template:'',data等}
+import myBread from '@/components/cuscom/myBread'
+
 
 //axios用法一 
 //import axios from 'axios'
@@ -22,6 +25,15 @@ Vue.config.productionTip = false
 Vue.filter('fmdate',(v)=>{
   return moment (v).format('YYYY-MM-DD')
 })
+//全局自定义组件
+/*
+//组件选项对象 myBread
+{
+  template:'',
+  data(){return {}},
+  props:[]
+}*/
+Vue.component(myBread.name,myBread)
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
