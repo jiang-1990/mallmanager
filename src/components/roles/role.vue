@@ -73,6 +73,7 @@
       <el-table-column label="操作">
         <template slot-scope="scope">
           <el-button
+            @click="EditRoleDia(scope.row)"
             size="small"
             plain
             type="primary"
@@ -96,8 +97,21 @@
             icon="el-icon-delete"
             circle
           ></el-button>
-          <!--删除角色弹窗-->
-          
+          <!--编辑角色弹窗-->
+          <el-dialog title="修改角色" :visible.sync="EditRoleDiaVisible">
+          <el-form :model="form">
+            <el-form-item label="角色名称" :label-width="formLabelWidth">
+              <el-input v-model="form.roleName" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="角色描述" :label-width="formLabelWidth">
+              <el-input v-model="form.roleDesc" autocomplete="off"></el-input>
+            </el-form-item>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button @click="EditRoleDiaVisible = false">取 消</el-button>
+            <el-button type="primary" @click="EditRole()">确 定</el-button>
+          </div>
+        </el-dialog>
         </template>
       </el-table-column>
     </el-table>
@@ -114,14 +128,37 @@ export default {
         roleName:'',
         roleDesc:''
       } ,
+      roleId:'',
       formLabelWidth:"100px",
       addRoleDiaVisible:false,
+      EditRoleDiaVisible:false,
     };
   },
   created() {
     this.getRoleList();
   },
   methods: {
+    //编辑修改角色
+    async EditRole(){
+      //发起修改请求
+      const res = await this.$http.put(`roles/${this.roleId}`,this.form)
+      console.log(res)
+      if(res.data.meta.status===200){
+        this.$message.success(res.data.meta.msg);
+        this.EditRoleDiaVisible=false
+        this.form={}
+        this.getRoleList()
+      }else{
+        this.$message.warning(res.data.meta.msg);
+      }
+    },
+    //修改角色弹窗
+     EditRoleDia(role){
+       this.EditRoleDiaVisible=true
+       this.form.roleName=role.roleName
+       this.form.roleDesc=role.roleDesc
+       this.roleId=role.id
+    },
     //删除角色权限
     async deletRight(role, rightId) {
       const res = await this.$http.delete(`roles/${role.id}/rights/${rightId}`);
