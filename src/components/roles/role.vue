@@ -5,47 +5,72 @@
     <!--按钮-->
     <el-row class="addBtn">
       <el-col>
-        <el-button type="primary" plain>添加角色</el-button>
+        <el-button @click="addRoleBox()" type="primary" plain>添加角色</el-button>
+        <el-dialog title="添加角色" :visible.sync="addRoleDiaVisible">
+          <el-form :model="form">
+            <el-form-item label="角色名称" :label-width="formLabelWidth">
+              <el-input v-model="form.roleName" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="角色描述" :label-width="formLabelWidth">
+              <el-input v-model="form.roleDesc" autocomplete="off"></el-input>
+            </el-form-item>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button @click="addRoleDiaVisible = false">取 消</el-button>
+            <el-button type="primary" @click="addRole()">确 定</el-button>
+          </div>
+        </el-dialog>
       </el-col>
     </el-row>
     <!--表格-->
     <el-table
       height="430"
       :data="roleList"
-      style="width: 100%; margin-bottom: 20px" 
+      style="width: 100%; margin-bottom: 20px"
     >
       <el-table-column type="expand" label="#" width="60">
         <template slot-scope="scope">
-          <el-row v-for="(item1,i) in scope.row.children" :key="i" >
+          <el-row v-for="(item1, i) in scope.row.children" :key="i">
             <el-col :span="4">
-              <el-tag closable @close="deletRight(scope.row,item1.id)">{{item1.authName}}</el-tag>
+              <el-tag closable @close="deletRight(scope.row, item1.id)">{{
+                item1.authName
+              }}</el-tag>
               <i class="el-icon-arrow-right"></i>
             </el-col>
             <el-col :span="20">
-              <el-row v-for="(item2,i) in item1.children" :key="i">
+              <el-row v-for="(item2, i) in item1.children" :key="i">
                 <el-col :span="4">
-                  <el-tag closable @close="deletRight(scope.row,item2.id)" type="success">{{item2.authName}}</el-tag>
+                  <el-tag
+                    closable
+                    @close="deletRight(scope.row, item2.id)"
+                    type="success"
+                    >{{ item2.authName }}</el-tag
+                  >
                   <i class="el-icon-arrow-right"></i>
                 </el-col>
                 <el-col :span="20">
-                  <el-tag @close="deletRight(scope.row,item3.id)" type="info" v-for="(item3,i) in item2.children" :key="i" closable>{{item3.authName}}</el-tag>
+                  <el-tag
+                    @close="deletRight(scope.row, item3.id)"
+                    type="info"
+                    v-for="(item3, i) in item2.children"
+                    :key="i"
+                    closable
+                    >{{ item3.authName }}</el-tag
+                  >
                 </el-col>
               </el-row>
             </el-col>
           </el-row>
-          <span v-if="scope.row.children.length==0">未分配权限</span>
+          <span v-if="scope.row.children.length == 0">未分配权限</span>
         </template>
       </el-table-column>
       <el-table-column type="index" label="序号" sortable width="60">
-
       </el-table-column>
       <el-table-column prop="roleName" label="角色名称" sortable width="250">
-
       </el-table-column>
       <el-table-column prop="roleDesc" label="角色描述" sortable width="250">
-
       </el-table-column>
-      <el-table-column label="操作"> 
+      <el-table-column label="操作">
         <template slot-scope="scope">
           <el-button
             size="small"
@@ -54,18 +79,16 @@
             icon="el-icon-edit"
             circle
           ></el-button>
-      
+
           <el-button
-            
             size="small"
             plain
             type="success"
             icon="el-icon-check"
             circle
           ></el-button>
-          
+
           <el-button
-           
             size="small"
             plain
             type="danger"
@@ -84,7 +107,12 @@ export default {
   data() {
     return {
       roleList: [],
-      roleId: '',
+      form:{
+        roleName:'',
+        roleDesc:''
+      } ,
+      formLabelWidth:"100px",
+      addRoleDiaVisible:false,
     };
   },
   created() {
@@ -92,14 +120,32 @@ export default {
   },
   methods: {
     //删除角色权限
-    async deletRight(role,rightId){
-      const res = await this.$http.delete(`roles/${role.id}/rights/${rightId}`)
-      console.log(res)
-      const {data,meta:{msg,status}} = res.data
-      if(status==200){
-        role.children=data
+    async deletRight(role, rightId) {
+      const res = await this.$http.delete(`roles/${role.id}/rights/${rightId}`);
+      console.log(res);
+      const {
+        data,
+        meta: { msg, status },
+      } = res.data;
+      if (status == 200) {
+        role.children = data;
         //this.getRoleList()
+        this.$message.success(msg);
+      }
+    },
+    //添加角色
+    addRoleBox() {
+      this.addRoleDiaVisible=true
+    },
+    //发起添加角色请求
+    async addRole(){
+      const res = await this.$http.post(`roles`,this.form)
+      console.log(res)
+      const {data,meta:{msg,status}}=res.data
+      if(status===201){
         this.$message.success(msg)
+        this.addRoleDiaVisible=false
+        this.getRoleList()
       }
     },
     //获取角色列表
@@ -111,11 +157,10 @@ export default {
       //console.log(res);
       const {
         data,
-        meta: {msg, status},
+        meta: { msg, status },
       } = res.data;
       if (status === 200) {
-        this.roleList=data
-      
+        this.roleList = data;
       }
     },
   },
