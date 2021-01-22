@@ -5,7 +5,9 @@
     <!--按钮-->
     <el-row class="addBtn">
       <el-col>
-        <el-button @click="addRoleBox()" type="primary" plain>添加角色</el-button>
+        <el-button @click="addRoleBox()" type="primary" plain
+          >添加角色</el-button
+        >
         <el-dialog title="添加角色" :visible.sync="addRoleDiaVisible">
           <el-form :model="form">
             <el-form-item label="角色名称" :label-width="formLabelWidth">
@@ -82,6 +84,7 @@
           ></el-button>
 
           <el-button
+            @click="RightSetDia(scope.row)"
             size="small"
             plain
             type="success"
@@ -99,19 +102,37 @@
           ></el-button>
           <!--编辑角色弹窗-->
           <el-dialog title="修改角色" :visible.sync="EditRoleDiaVisible">
-          <el-form :model="form">
-            <el-form-item label="角色名称" :label-width="formLabelWidth">
-              <el-input v-model="form.roleName" autocomplete="off"></el-input>
-            </el-form-item>
-            <el-form-item label="角色描述" :label-width="formLabelWidth">
-              <el-input v-model="form.roleDesc" autocomplete="off"></el-input>
-            </el-form-item>
-          </el-form>
-          <div slot="footer" class="dialog-footer">
-            <el-button @click="EditRoleDiaVisible = false">取 消</el-button>
-            <el-button type="primary" @click="EditRole()">确 定</el-button>
-          </div>
-        </el-dialog>
+            <el-form :model="form">
+              <el-form-item label="角色名称" :label-width="formLabelWidth">
+                <el-input v-model="form.roleName" autocomplete="off"></el-input>
+              </el-form-item>
+              <el-form-item label="角色描述" :label-width="formLabelWidth">
+                <el-input v-model="form.roleDesc" autocomplete="off"></el-input>
+              </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+              <el-button @click="EditRoleDiaVisible = false">取 消</el-button>
+              <el-button type="primary" @click="EditRole()">确 定</el-button>
+            </div>
+          </el-dialog>
+          <!--权限分配弹窗-->
+          <el-dialog title="权限设置" :visible.sync="RightRoleDiaVisible">
+            <!--树结构权限列表-->
+            <el-tree
+              ref="tree"
+              :data="dataTree"
+              show-checkbox
+              node-key="id"
+              default-expand-all
+              :default-checked-keys="allcheck"
+              :props="defaultProps"
+            >
+            </el-tree>
+            <div slot="footer" class="dialog-footer">
+              <el-button @click="RightRoleDiaVisible = false">取 消</el-button>
+              <el-button type="primary" @click="RightSet()">确 定</el-button>
+            </div>
+          </el-dialog>
         </template>
       </el-table-column>
     </el-table>
@@ -124,40 +145,104 @@ export default {
   data() {
     return {
       roleList: [],
-      form:{
-        roleName:'',
-        roleDesc:''
-      } ,
-      roleId:'',
-      formLabelWidth:"100px",
-      addRoleDiaVisible:false,
-      EditRoleDiaVisible:false,
+      form: {
+        roleName: "",
+        roleDesc: "",
+      },
+      roleId: "",
+      formLabelWidth: "100px",
+      addRoleDiaVisible: false,
+      EditRoleDiaVisible: false,
+      RightRoleDiaVisible: false,
+      dataTree: [],
+      allexpand:[],//放所有权限的id
+      allcheck:[],//当前角色有的所有权限id
+      defaultProps: {
+          children: 'children',
+          label: 'authName'
+      }
     };
   },
   created() {
     this.getRoleList();
   },
   methods: {
-    //编辑修改角色
-    async EditRole(){
-      //发起修改请求
-      const res = await this.$http.put(`roles/${this.roleId}`,this.form)
-      console.log(res)
+    //权限分配设置
+    async RightSet() {
+      //获取所有被选中的权限节点(全选中状态和半选中状态)
+      const arr1 = this.$refs.tree.getCheckedKeys()
+      const arr2 = this.$refs.tree.getHalfCheckedKeys()
+      //合并arr1和arr2
+      const arr = [...arr1,...arr2]
+      //发起权限设置请求
+      const res = await this.$http.post(`roles/${this.roleId}/rights`,{rids:arr.join(',')});
+      //console.log(res);
       if(res.data.meta.status===200){
-        this.$message.success(res.data.meta.msg);
-        this.EditRoleDiaVisible=false
-        this.form={}
+        this.RightRoleDiaVisible = false
         this.getRoleList()
-      }else{
+        this.$message.success(res.data.meta.msg)
+      }
+    },
+    //打开权限分配对话框
+    async RightSetDia(role) {
+      //获取当前角色有的所有权限id
+      const arrtemp1 = []
+        role.children.forEach(item1 =>{
+          item1.children.forEach(item2 =>{
+            item2.children.forEach(item3 =>{
+              arrtemp1.push(item3.id)
+            })
+          })
+        })
+        this.allcheck=arrtemp1
+      this.RightRoleDiaVisible = true;
+      this.roleId = role.id;
+      //获取所有权限列表
+      const res = await this.$http.get(`rights/tree`);
+      //console.log(res);
+      const {
+        data,
+        meta: { msg, status },
+      } = res.data;
+      if (status === 200) {
+        //将所有权限列表赋值给dataTree
+        this.dataTree = data
+        /*
+        //将所有权限的id放入数组allexpand中，遍历datatree
+        const arrtemp1 = []
+        this.dataTree.forEach(item1 =>{
+          arrtemp1.push(item1.id)
+          item1.children.forEach(item2 =>{
+            arrtemp1.push(item2.id)
+            item2.children.forEach(item3 =>{
+              arrtemp1.push(item3.id)
+            })
+          })
+        })
+        this.allexpand=arrtemp1
+        */
+      }
+    },
+    //编辑修改角色
+    async EditRole() {
+      //发起修改请求
+      const res = await this.$http.put(`roles/${this.roleId}`, this.form);
+      console.log(res);
+      if (res.data.meta.status === 200) {
+        this.$message.success(res.data.meta.msg);
+        this.EditRoleDiaVisible = false;
+        this.form = {};
+        this.getRoleList();
+      } else {
         this.$message.warning(res.data.meta.msg);
       }
     },
     //修改角色弹窗
-     EditRoleDia(role){
-       this.EditRoleDiaVisible=true
-       this.form.roleName=role.roleName
-       this.form.roleDesc=role.roleDesc
-       this.roleId=role.id
+    EditRoleDia(role) {
+      this.EditRoleDiaVisible = true;
+      this.form.roleName = role.roleName;
+      this.form.roleDesc = role.roleDesc;
+      this.roleId = role.id;
     },
     //删除角色权限
     async deletRight(role, rightId) {
@@ -174,39 +259,46 @@ export default {
       }
     },
     //删除角色
-    deleteRole(id){
-      this.$confirm('此操作将永久删除该角色, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(async () => {
+    deleteRole(id) {
+      this.$confirm("此操作将永久删除该角色, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(async () => {
           //发起删除请求
-          const res = await this.$http.delete(`roles/${id}`)
-          const {meta:{msg,status}}=res.data
-          if(status===200){
+          const res = await this.$http.delete(`roles/${id}`);
+          const {
+            meta: { msg, status },
+          } = res.data;
+          if (status === 200) {
             this.$message.success(msg);
-            this.getRoleList()
-          }else{
+            this.getRoleList();
+          } else {
             this.$message.warning(msg);
           }
-        }).catch(() => {
-          this.$message.info('已取消删除!');     
+        })
+        .catch(() => {
+          this.$message.info("已取消删除!");
         });
     },
     //添加角色
     addRoleBox() {
-      this.addRoleDiaVisible=true
+      this.addRoleDiaVisible = true;
     },
     //发起添加角色请求
-    async addRole(){
-      const res = await this.$http.post(`roles`,this.form)
+    async addRole() {
+      const res = await this.$http.post(`roles`, this.form);
       //console.log(res)
-      const {data,meta:{msg,status}}=res.data
-      if(status===201){
-        this.$message.success(msg)
-        this.addRoleDiaVisible=false
-        this.getRoleList()
-        this.form={}
+      const {
+        data,
+        meta: { msg, status },
+      } = res.data;
+      if (status === 201) {
+        this.$message.success(msg);
+        this.addRoleDiaVisible = false;
+        this.getRoleList();
+        this.form = {};
       }
     },
     //获取角色列表

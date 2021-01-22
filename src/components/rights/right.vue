@@ -2,7 +2,7 @@
 
   <el-card class="box-card">
     <!--面包屑-->
-    <my-bread level1="权限管理" level2="列表管理"></my-bread>
+    <my-bread level1="权限管理" level2="权限列表"></my-bread>
     <!--表格-->
     <el-table :data="listData" style="width: 100%" height="530">
       <el-table-column type="index" label="序号" width="80"> </el-table-column>
