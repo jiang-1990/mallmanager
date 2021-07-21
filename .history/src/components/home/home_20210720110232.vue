@@ -152,8 +152,8 @@ export default {
       const token = localStorage.getItem('token')
       this.$http.defaults.headers.common['Authorization'] = token
       const res = await this.$http.get(`menus`)
-      const {data, meta: {status}} = res.data
-      if (status === 200) {
+      const {data, meta: {msg, status}} = res.data
+      if (status == 200) {
         // console.log(data)
         this.menus = data
       }

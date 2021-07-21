@@ -13,7 +13,7 @@
       <el-form-item label="密码">
         <el-input v-model="formdata.password"></el-input>
       </el-form-item>
-      <el-button 
+      <el-button
       @click.prevent="handleLogin()"
       class="login-btn" type="primary">登 录</el-button>
     </el-form>
@@ -22,17 +22,17 @@
 
 <script>
 export default {
-  data() {
+  data () {
     return {
       formdata: {
-        username: "",
-        password: "",
-      },
-    };
+        username: '',
+        password: ''
+      }
+    }
   },
-  methods:{
-    //登录请求
-    /**handleLogin(){
+  methods: {
+    // 登录请求
+    /** handleLogin(){
       this.$http.post('login',this.formdata).then(res=>{
         //console.log(res)
         const {
@@ -53,33 +53,33 @@ export default {
         }
       })
     }**/
- //优化请求 让异步操作看起来像同步代码
-  //ES7 async+await
-    async handleLogin(){
-      const res=await this.$http.post('login',this.formdata)
-        //console.log(res)
-        const {
-          data,meta:{
-            msg,status
-          }
-        } = res.data//对象结果赋值
-        if(status===200){
-          //登录成功
-          //存储token值 (如果用户没登录通过标识直接来到home组件)
-          localStorage.setItem('token',data.token)
-
-          //跳转home
-          this.$router.push({name:'home'})
-          //返回信息：登录成功
-          this.$message(msg);
-        }else{
-          //登录失败
-          //返回提示信息：登录失败
-          this.$message.error(msg);
+    // 优化请求 让异步操作看起来像同步代码
+  // ES7 async+await
+    async handleLogin () {
+      const res = await this.$http.post('login', this.formdata)
+      // console.log(res)
+      const {
+        data, meta: {
+          msg, status
         }
+      } = res.data// 对象结果赋值
+      if (status === 200) {
+        // 登录成功
+        // 存储token值 (如果用户没登录通过标识直接来到home组件)
+        localStorage.setItem('token', data.token)
+
+        // 跳转home
+        this.$router.push({name: 'home'})
+        // 返回信息：登录成功
+        this.$message(msg)
+      } else {
+        // 登录失败
+        // 返回提示信息：登录失败
+        this.$message.error(msg)
+      }
     }
   }
-};
+}
 </script>
 
 <style scoped>

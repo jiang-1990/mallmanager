@@ -192,7 +192,6 @@ export default {
     async showSetUserRoleDia (user) {
       this.currusername = user.username
       this.currUserId = user.id
-
       // 获取所有的角色
       const resr = await this.$http.get('roles')
       this.roles = resr.data.data

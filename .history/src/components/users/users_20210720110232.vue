@@ -181,7 +181,7 @@ export default {
     // 发起修改角色请求修改数据
     async setRole () {
       const res = await this.$http.put(`users/${this.currUserId}/role`, {rid: this.currRoleId})
-      const {meta: {msg, status}} = res.data
+      const {data, meta: {msg, status}} = res.data
       if (status === 200) {
         this.$message.success(msg)
         this.dialogFormVisibleRole = false
@@ -192,14 +192,13 @@ export default {
     async showSetUserRoleDia (user) {
       this.currusername = user.username
       this.currUserId = user.id
-
       // 获取所有的角色
       const resr = await this.$http.get('roles')
       this.roles = resr.data.data
       // console.log(this.roles)
       // 获取该用户的角色id
       const res = await this.$http.get(`users/${user.id}`)
-      const {data: {rid}, meta: {status}} = res.data
+      const {data: {rid}, meta: {msg, status}} = res.data
       if (status === 200) {
         this.currRoleId = rid
       }
@@ -213,7 +212,7 @@ export default {
       )
       // console.log(res)
       const {
-
+        data,
         meta: { msg, status }
       } = res.data
       if (status === 200) {
@@ -226,7 +225,7 @@ export default {
       // console.log(this.form)
       const res = await this.$http.put(`users/${this.form.id}`, this.form)
       const {
-
+        data,
         meta: { msg, status }
       } = res.data
       if (status === 200) {
@@ -249,7 +248,7 @@ export default {
         .then(async () => {
           const res = await this.$http.delete(`users/${userId}`)
           const {
-
+            data,
             meta: { msg, status }
           } = res.data
           if (status === 200) {
@@ -278,6 +277,7 @@ export default {
     async addUser () {
       const res = await this.$http.post(`users`, this.form)
       const {
+        data,
         meta: { msg, status }
       } = res.data
       if (status === 201) {

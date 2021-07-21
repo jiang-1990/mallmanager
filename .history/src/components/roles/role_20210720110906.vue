@@ -202,7 +202,7 @@ export default {
       // console.log(res);
       const {
         data,
-        meta: {status}
+        meta: {status }
       } = res.data
       if (status === 200) {
         // 将所有权限列表赋值给dataTree
@@ -252,7 +252,7 @@ export default {
         data,
         meta: { msg, status }
       } = res.data
-      if (status === 200) {
+      if (status == 200) {
         role.children = data
         // this.getRoleList()
         this.$message.success(msg)
@@ -291,7 +291,7 @@ export default {
       const res = await this.$http.post(`roles`, this.form)
       // console.log(res)
       const {
-
+        data,
         meta: { msg, status }
       } = res.data
       if (status === 201) {
@@ -310,7 +310,7 @@ export default {
       // console.log(res);
       const {
         data,
-        meta: {status}
+        meta: { msg, status }
       } = res.data
       if (status === 200) {
         this.roleList = data

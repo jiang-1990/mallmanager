@@ -181,7 +181,7 @@ export default {
     // 发起修改角色请求修改数据
     async setRole () {
       const res = await this.$http.put(`users/${this.currUserId}/role`, {rid: this.currRoleId})
-      const {meta: {msg, status}} = res.data
+      const { meta: {msg, status}} = res.data
       if (status === 200) {
         this.$message.success(msg)
         this.dialogFormVisibleRole = false
@@ -192,7 +192,6 @@ export default {
     async showSetUserRoleDia (user) {
       this.currusername = user.username
       this.currUserId = user.id
-
       // 获取所有的角色
       const resr = await this.$http.get('roles')
       this.roles = resr.data.data
