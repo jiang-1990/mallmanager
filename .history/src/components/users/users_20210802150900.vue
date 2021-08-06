@@ -258,7 +258,6 @@ export default {
               type: 'success',
               message: msg
             })
-            this.getUserList()
           } else {
             this.$message.warning(msg)
           }
@@ -284,11 +283,10 @@ export default {
       } = res.data
       if (status === 201) {
         // 添加成功
+        
         this.getUserList() // 更新视图
         this.form = {} // 清空数据
         this.$message.success(msg) // 提示信息
-      }else{
-        this.$message.warning(msg) // 失败提示信息
       }
       console.log(res)
     },

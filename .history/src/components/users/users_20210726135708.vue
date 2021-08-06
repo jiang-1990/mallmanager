@@ -258,7 +258,6 @@ export default {
               type: 'success',
               message: msg
             })
-            this.getUserList()
           } else {
             this.$message.warning(msg)
           }
@@ -277,18 +276,16 @@ export default {
     },
     // 添加用户提交报保存方法
     async addUser () {
-      this.dialogFormVisible = false // 关闭对话框
       const res = await this.$http.post(`users`, this.form)
       const {
         meta: { msg, status }
       } = res.data
       if (status === 201) {
         // 添加成功
+        this.dialogFormVisible = false // 关闭对话框
         this.getUserList() // 更新视图
         this.form = {} // 清空数据
         this.$message.success(msg) // 提示信息
-      }else{
-        this.$message.warning(msg) // 失败提示信息
       }
       console.log(res)
     },
@@ -314,7 +311,7 @@ export default {
         // 给total赋值
         this.total = total
         // 提示
-        //this.$message.success(msg)
+        this.$message.success(msg)
       } else {
         // 提示
         this.$message.warning(msg)

@@ -258,7 +258,6 @@ export default {
               type: 'success',
               message: msg
             })
-            this.getUserList()
           } else {
             this.$message.warning(msg)
           }
