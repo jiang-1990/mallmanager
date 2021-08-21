@@ -1,0 +1,128 @@
+<template>
+  <el-card class="box-card">
+    <!--面包屑-->
+    <my-bread level1="订单管理" level2="订单列表"></my-bread> 
+    <!--订单表格-->
+    <el-table :data="tableData" style="width: 100%" height="500px">
+        <el-table-column type="index" width="60" label="序号"> </el-table-column>
+      <el-table-column prop="order_number" label="订单编号" width="260">
+      </el-table-column>
+      <el-table-column prop="order_price" label="订单价格">
+      </el-table-column>
+      <el-table-column prop="order_pay" label="是否付款">
+      </el-table-column>
+      <el-table-column prop="is_send" label="是否发货">
+      </el-table-column>
+      <el-table-column label="下单时间">
+          <template slot-scope="scope">{{scope.row.create_time | fmdate}}</template>
+      </el-table-column>
+      <el-table-column label="操作">
+        <template slot-scope="scope">
+            <el-button
+            @click="showEditGoodDia(scope.row)"
+            size="small"
+            plain
+            type="primary"
+            icon="el-icon-edit"
+            circle
+            ></el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <!--翻页-->
+    <el-pagination
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="pagenum"
+      :page-sizes="[4, 6, 8, 10]"
+      :page-size="pagesize"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="total"
+    >
+    </el-pagination>
+    <!--修改订单弹窗-->
+    <el-dialog title="修改订单地址" :visible.sync="dialogFormVisibleEdt">
+    <el-form :model="addForm">
+      <el-form-item label="分类名称：" :label-width="formLabelWidth">
+        <el-input
+          v-model="addForm.cat_name"
+          autocomplete="off"
+        ></el-input>
+      </el-form-item>
+      <el-form-item label="分类：" :label-width="formLabelWidth">
+        <el-cascader 
+        expandTrigger="hover"
+        :options="options" 
+        v-model="selectedOptions"
+        :props="defaultProp"
+        :show-all-levels="false"
+        @change="handleChange"
+        clearable></el-cascader>
+      </el-form-item>
+    </el-form>
+    <div slot="footer" class="dialog-footer">
+      <el-button @click="dialogFormVisibleAdd = false">取 消</el-button>
+      <el-button type="primary" @click="addClass()">确 定</el-button>
+    </div>
+    </el-dialog>
+  </el-card>
+</template>
+
+<script>
+
+export default {
+  
+  data() {
+    return {
+      tableData: [],
+      total: 0,
+      type: 3,
+      query:'',
+      pagenum: 1,
+      pagesize: 8,
+      //修改订单
+      dialogFormVisibleEdt:false,
+    };
+  },
+  created() {
+    this.getTableData()
+  },
+  methods: {
+    //编辑
+    showEditGoodDia(row){
+        console.log(row)
+    },
+    //获取订单表格数据
+    async getTableData(){
+        const res = await this.$http.get(`orders?query=${this.query}&pagenum=${this.pagenum}&pagesize=${this.pagesize}`)
+        this.tableData=res.data.data.goods
+        this.total=res.data.data.total
+        console.log(res)
+    },
+    // 分页相关方法
+    handleSizeChange(val) {
+      // 每页显示条数变化时触发
+      // console.log(`每页 ${val} 条`);
+      this.pagesize = val;
+      // this.pagesize=1
+      this.getTableData()
+    },
+    handleCurrentChange(val) {
+      // 当前页改变触发
+      // console.log(`当前页: ${val}`);
+      this.pagenum = val;
+      this.getTableData()
+    },
+  },
+};
+</script>
+
+<style scoped>
+.box-card {
+  height: 100%;
+}
+.el-table {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+</style>

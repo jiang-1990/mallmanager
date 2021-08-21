@@ -10,8 +10,6 @@ import Params from '@/components/Params/params'
 import Categories from '@/components/categories/category'
 import Goodsadd from '@/components/goods/goodsadd'
 import Orders from '@/components/order/order'
-import Reports from '@/components/reports/reports'
-
 import { Message } from 'element-ui'
 
 Vue.use(Router)
@@ -101,11 +99,6 @@ const router = new Router({
           path: '/orders',
           name: 'orders',
           component: Orders
-        },
-        {
-          path: '/reports',
-          name: 'reports',
-          component: Reports
         }
       ]
     }
